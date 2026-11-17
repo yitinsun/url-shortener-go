@@ -1,0 +1,170 @@
+[
+  {
+    "timestamp": "2026-11-17T19:43:34Z",
+    "stage": "IMPLEMENTATION",
+    "action_taken": "Created backend/sql/schema.sql from the MySQL 8.0 DDL, including AUTO_INCREMENT=56800235.",
+    "upstream_dependency": "specs/greenfield/SYSTEM_DESIGN.md",
+    "upstream_dependency_hash": "f0d03e3369154ebe6cb25409f56fa091b37a643f810c715e04f23977b53703d6",
+    "rationale": "The table and seed id are the storage contract for Base62 codes of at least five characters."
+  },
+  {
+    "timestamp": "2026-11-17T19:43:34Z",
+    "stage": "IMPLEMENTATION",
+    "action_taken": "Created backend/go.mod and backend/go.sum for module url-shortener on Go 1.27.4 with the allow-listed direct requirements.",
+    "upstream_dependency": "specs/greenfield/TECH_STACK.md",
+    "upstream_dependency_hash": "8ac72759e24a7f455b1737a7ca9761f978ee7999ce2212d3b3b3a5039385ef32",
+    "rationale": "Gate 3C needs the module before handlers can be built and tested."
+  },
+  {
+    "timestamp": "2026-11-17T19:43:34Z",
+    "stage": "IMPLEMENTATION",
+    "action_taken": "Created backend/encoding/base62.go with Encode and Decode.",
+    "upstream_dependency": "specs/greenfield/SYSTEM_DESIGN.md",
+    "upstream_dependency_hash": "f0d03e3369154ebe6cb25409f56fa091b37a643f810c715e04f23977b53703d6",
+    "rationale": "Deterministic ID-to-Base62 encoding avoids hash-collision retries on insert."
+  },
+  {
+    "timestamp": "2026-11-17T19:43:34Z",
+    "stage": "IMPLEMENTATION",
+    "action_taken": "Created backend/config/config.go to read the environment table and build the MySQL DSN.",
+    "upstream_dependency": "specs/greenfield/TECH_STACK.md",
+    "upstream_dependency_hash": "8ac72759e24a7f455b1737a7ca9761f978ee7999ce2212d3b3b3a5039385ef32",
+    "rationale": "Secrets stay in the environment. Prod has no password default."
+  },
+  {
+    "timestamp": "2026-11-17T19:43:34Z",
+    "stage": "IMPLEMENTATION",
+    "action_taken": "Created backend/repo/mysql.go with bound queries, the transactional insert, and schema apply.",
+    "upstream_dependency": "specs/greenfield/SYSTEM_DESIGN.md",
+    "upstream_dependency_hash": "f0d03e3369154ebe6cb25409f56fa091b37a643f810c715e04f23977b53703d6",
+    "rationale": "The repository interface lets service tests use an in-memory fake while production uses database/sql."
+  },
+  {
+    "timestamp": "2026-11-17T19:43:34Z",
+    "stage": "IMPLEMENTATION",
+    "action_taken": "Created backend/service/url_shortener.go for validation, idempotent create, and redirect lookup.",
+    "upstream_dependency": "specs/greenfield/PRD.md",
+    "upstream_dependency_hash": "bf9baf38f6c93856cd8e9c98f8f98abeaf3ab816efb163e1f0b7ef59f1d96f25",
+    "rationale": "Active exact long URLs are reused. Expired rows get a new id and code."
+  },
+  {
+    "timestamp": "2026-11-17T19:43:34Z",
+    "stage": "IMPLEMENTATION",
+    "action_taken": "Created backend/schedule/cleanup.go to delete at most 500 expired rows per hour with a fixed SQL statement.",
+    "upstream_dependency": "specs/greenfield/SYSTEM_DESIGN.md",
+    "upstream_dependency_hash": "f0d03e3369154ebe6cb25409f56fa091b37a643f810c715e04f23977b53703d6",
+    "rationale": "Redirects already 404 when a row is expired. Cleanup only bounds table growth."
+  },
+  {
+    "timestamp": "2026-11-17T19:43:34Z",
+    "stage": "IMPLEMENTATION",
+    "action_taken": "Created backend/apperror and backend/web for the 201 JSON body, 400 and 503 JSON errors, the 302 redirect, and the HTML 404 page.",
+    "upstream_dependency": "specs/greenfield/PRD.md",
+    "upstream_dependency_hash": "bf9baf38f6c93856cd8e9c98f8f98abeaf3ab816efb163e1f0b7ef59f1d96f25",
+    "rationale": "Create responses stay JSON. Missing and expired codes stay friendly HTML, never 301."
+  },
+  {
+    "timestamp": "2026-11-17T19:43:34Z",
+    "stage": "IMPLEMENTATION",
+    "action_taken": "Created backend/main.go to apply dev schema, start cleanup, and listen on BIND_ADDR.",
+    "upstream_dependency": "specs/greenfield/TECH_STACK.md",
+    "upstream_dependency_hash": "8ac72759e24a7f455b1737a7ca9761f978ee7999ce2212d3b3b3a5039385ef32",
+    "rationale": "Stage 3C wires config, the repository, and the chi router into one process."
+  },
+  {
+    "timestamp": "2026-11-17T19:43:34Z",
+    "stage": "TESTING",
+    "action_taken": "Ran go test ./... -count=1 -covermode=atomic -coverpkg=./... -coverprofile=coverage.out from backend/. go tool cover -func reported total statement coverage 83.3%. 32 tests passed and none were skipped.",
+    "upstream_dependency": "specs/greenfield/TESTING_PLAN.md",
+    "upstream_dependency_hash": "0795c94b60612b9824b1272d0a27f2c9a43337659f64b3eb051d3c517bf43e88",
+    "rationale": "Gate 4 requires a real coverage total of at least 80% and zero skipped mandatory cases."
+  },
+  {
+    "timestamp": "2026-11-17T19:54:01Z",
+    "stage": "IMPLEMENTATION",
+    "action_taken": "Mounted Swagger UI at /swagger-ui.html and the OpenAPI 3 document at /v3/api-docs and /v3/api-docs.yaml. Added swaggo/swag v1.16.6 and swaggo/http-swagger/v2 v2.0.2. The document lists POST /api/v1/shorten only.",
+    "upstream_dependency": "specs/brownfield/01-add-swagger.md",
+    "upstream_dependency_hash": "e1dc91130ec49be1f8fe3fea75a04e8b5f46b3c2749ed842351ee211200f8133",
+    "rationale": "The signed swagger playbook publishes the existing create API. It does not change status codes, the schema, or the redirect."
+  },
+  {
+    "timestamp": "2026-11-17T19:54:01Z",
+    "stage": "TESTING",
+    "action_taken": "Re-ran the Gate 4 coverage command from backend/ after the swagger playbook. go tool cover -func reported total statement coverage 81.9%.",
+    "upstream_dependency": "specs/brownfield/01-add-swagger.md",
+    "upstream_dependency_hash": "e1dc91130ec49be1f8fe3fea75a04e8b5f46b3c2749ed842351ee211200f8133",
+    "rationale": "The playbook requires the existing API tests and the 80% coverage bar to stay green."
+  },
+  {
+    "timestamp": "2026-11-17T19:56:50Z",
+    "stage": "IMPLEMENTATION",
+    "action_taken": "Added LegalPaths and the LegalPath middleware in backend/web/legal_path.go. Illegal URLs return the shared HTML 404. GET /short/{shortCode} is unchanged.",
+    "upstream_dependency": "specs/brownfield/02-legal-paths.md",
+    "upstream_dependency_hash": "953d1b3a90e8b33c89df8d25c068d350874aa3d35c2d331b0782a87887b4c4f8",
+    "rationale": "The allowlist keeps create, redirect, and Swagger reachable, and stops every other URL before a handler can answer."
+  },
+  {
+    "timestamp": "2026-11-17T19:56:50Z",
+    "stage": "TESTING",
+    "action_taken": "Re-ran the Gate 4 coverage command from backend/ after the legal-path playbook. go tool cover -func reported total statement coverage 82.8%.",
+    "upstream_dependency": "specs/brownfield/02-legal-paths.md",
+    "upstream_dependency_hash": "953d1b3a90e8b33c89df8d25c068d350874aa3d35c2d331b0782a87887b4c4f8",
+    "rationale": "The playbook keeps the greenfield API tests and adds the illegal-path cases without dropping below 80%."
+  },
+  {
+    "timestamp": "2026-11-17T20:18:08Z",
+    "stage": "IMPLEMENTATION",
+    "action_taken": "Added public-access and HTML-sanitize middleware after LegalPath. HTML in longUrl returns 400 JSON with message longUrl contains disallowed HTML. The module is bluemonday v1.0.27. Routes stay public and return no 401.",
+    "upstream_dependency": "specs/brownfield/03-security-jsoup.md",
+    "upstream_dependency_hash": "6b5b6936418434a201a3306fd1901a3112608a1f19a24fa0b72c5cdc500dc3e8",
+    "rationale": "The signed playbook documents public routes and rejects markup in longUrl with the existing error JSON."
+  },
+  {
+    "timestamp": "2026-11-17T20:18:08Z",
+    "stage": "TESTING",
+    "action_taken": "Re-ran the Gate 4 coverage command from backend/ after the security playbook. go tool cover -func reported total statement coverage 83.5%.",
+    "upstream_dependency": "specs/brownfield/03-security-jsoup.md",
+    "upstream_dependency_hash": "6b5b6936418434a201a3306fd1901a3112608a1f19a24fa0b72c5cdc500dc3e8",
+    "rationale": "The playbook keeps the existing API tests and adds the HTML and public-access cases without dropping below 80%."
+  },
+  {
+    "timestamp": "2026-11-17T20:22:23Z",
+    "stage": "OBSERVABILITY",
+    "action_taken": "Replaced README.md with the Go 1.27.4 backend run steps, the React client commands, the Gate 4 coverage command, and the public-access limits. frontend/package.json is not in this workspace.",
+    "upstream_dependency": "specs/brownfield/04-refine.md",
+    "upstream_dependency_hash": "0861e2fa6fa835774828c8452506a5705d9d9fe4a9dc3385f71252124affbe4a",
+    "rationale": "The signed docs playbook replaces the short stub with the build, test, and HTTP pointers that match the tree."
+  },
+  {
+    "timestamp": "2026-11-17T20:22:23Z",
+    "stage": "TESTING",
+    "action_taken": "Re-ran the Gate 4 coverage command from backend/. go tool cover -func reported total statement coverage 83.5%. 44 tests passed and none were skipped.",
+    "upstream_dependency": "specs/brownfield/04-refine.md",
+    "upstream_dependency_hash": "0861e2fa6fa835774828c8452506a5705d9d9fe4a9dc3385f71252124affbe4a",
+    "rationale": "line_coverage_ratio is copied from that run. Stage 7 fields stay null because Stage 7 is open. No repair loop ran."
+  },
+  {
+    "timestamp": "2026-11-17T20:22:23Z",
+    "stage": "OBSERVABILITY",
+    "action_taken": "Ran docker compose up --build once from the workspace root. It exited 1 with: no configuration file provided: not found. No image was produced.",
+    "upstream_dependency": "specs/brownfield/04-refine.md",
+    "upstream_dependency_hash": "0861e2fa6fa835774828c8452506a5705d9d9fe4a9dc3385f71252124affbe4a",
+    "rationale": "Stage 6 has no Dockerfile or compose file. The playbook records that result and does not claim an image."
+  },
+  {
+    "timestamp": "2026-11-17T20:29:14Z",
+    "stage": "IMPLEMENTATION",
+    "action_taken": "Added the React client in frontend/. It calls POST /api/v1/shorten only. npm test passed 10 tests and npm run build succeeded on Node.js 24.",
+    "upstream_dependency": "specs/frontend/PRD.md",
+    "upstream_dependency_hash": "3c8d45bb741a471bc29fb6cc01f9d97a9f2ccb3d474d556e863da632ce19626a",
+    "rationale": "The signed client request builds the page from the frontend specs. The Go API and its status codes stay unchanged."
+  },
+  {
+    "timestamp": "2026-11-17T20:37:00Z",
+    "stage": "IMPLEMENTATION",
+    "action_taken": "Replaced the four client photographs with a cool blue set: navy notebook on a blue-gray desk, a slate tray, blue-gray letterpress sorts, and a blue door opening onto the sea. Alt text and filenames are unchanged.",
+    "upstream_dependency": "specs/frontend/DESIGN.md",
+    "upstream_dependency_hash": "8aeff487f44dc55d3796c4619eecb48343c5179ce6fc303d2efbbc70edfc3b2d",
+    "rationale": "The previous files were the Rust client photographs, so the two apps could not be told apart."
+  }
+]
