@@ -1,0 +1,82 @@
+basePath: /
+definitions:
+  web.ErrorResponse:
+    properties:
+      error:
+        example: Bad Request
+        type: string
+      message:
+        example: longUrl is not a valid URI
+        type: string
+      shortCode:
+        type: string
+      status:
+        example: 400
+        type: integer
+    type: object
+  web.ShortenRequest:
+    properties:
+      longUrl:
+        example: https://example.com/api-design/api-design-url-shortening-service/
+        type: string
+      ttlInDays:
+        example: 365
+        maximum: 3650
+        minimum: 1
+        type: integer
+    type: object
+  web.ShortenResponse:
+    properties:
+      expiresAt:
+        example: "2027-11-12T09:25:00Z"
+        type: string
+      longUrl:
+        example: https://example.com/api-design/api-design-url-shortening-service/
+        type: string
+      shortCode:
+        example: b9K2x1
+        maxLength: 7
+        minLength: 5
+        type: string
+      shortUrl:
+        example: http://localhost:8080/short/b9K2x1
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Create a short code from a long HTTP(S) URL. Click analytics, auth,
+    and custom aliases are out of v1. The redirect route is not part of this document.
+  title: URL Shortener API
+  version: 0.1.0
+paths:
+  /api/v1/shorten:
+    post:
+      consumes:
+      - application/json
+      description: Mapping created, or an existing active mapping returned
+      parameters:
+      - description: Create a short URL
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.ShortenRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Mapping created, or an existing active mapping returned
+          schema:
+            $ref: '#/definitions/web.ShortenResponse'
+        "400":
+          description: Invalid body (URL, TTL, script payload, or self-loop)
+          schema:
+            $ref: '#/definitions/web.ErrorResponse'
+        "503":
+          description: Database unavailable
+          schema:
+            $ref: '#/definitions/web.ErrorResponse'
+      summary: Create a short URL
+      tags:
+      - Shorten
+swagger: "2.0"

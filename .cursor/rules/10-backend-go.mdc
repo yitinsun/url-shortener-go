@@ -1,0 +1,23 @@
+---
+description: v1 URL shortener Go API stack, schema, and test contract
+globs: backend/**
+alwaysApply: false
+---
+
+# Backend implementation contract
+
+Read `specs/greenfield/PRD.md`, `SYSTEM_DESIGN.md`, `TECH_STACK.md`, and `TESTING_PLAN.md` before changing matching files. The HTTP contract is `specs/contracts/openapi.yaml`.
+
+## Stack
+
+Go 1.27 (toolchain go1.27.4), chi 5.5.0, `database/sql` with `github.com/go-sql-driver/mysql` 1.10.2 for MySQL 8.0, `encoding/json`. Module root is `backend/`. Statement coverage uses `go test -coverprofile` and `go tool cover -func`; the `total:` line must be ≥ 80%. swaggo and bluemonday are present only under signed playbooks. Routes stay public: no auth middleware, no CSRF middleware. Do not add Redis, a migration tool, a rate-limiter, Safe Browsing clients, JWT, or OAuth.
+
+API DTOs are Go structs with camelCase `json` tags. SQL uses `database/sql` with `?` placeholders and bound arguments only. Secrets come from environment variables as in `TECH_STACK.md`.
+
+## Domain
+
+Packages live under `backend/`. `url_mappings` DDL and seed `56800235` come from `SYSTEM_DESIGN.md` (`backend/sql/schema.sql`, utf8mb4). Short codes are plain Base62(id). Idempotent create for an **active** exact `longUrl`. Default TTL 730 days. `GET /short/{shortCode}` returns 302, never 301. Missing or expired codes return **404 HTML**, not JSON and not chi’s or `net/http`’s plain-text default.
+
+## Tests
+
+Mandatory packages and cases in `TESTING_PLAN.md`. Integration tests boot the chi router against MySQL 8.0 in testcontainers-go, not a mock HTTP layer. Gate 4 command, from `backend/`: `go test ./... -count=1 -covermode=atomic -coverpkg=./... -coverprofile=coverage.out`, then `go tool cover -func=coverage.out` with `total:` ≥ 80%.
