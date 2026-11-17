@@ -13,6 +13,7 @@
 
 # Code coverage profiles and other test artifacts
 *.out
+cover
 coverage.html
 coverage.txt
 coverage.xml
@@ -28,6 +29,10 @@ go.work.sum
 
 # env file
 .env
+
+# React client
+frontend/node_modules/
+frontend/dist/
 
 # Editor/IDE
 # .idea/
